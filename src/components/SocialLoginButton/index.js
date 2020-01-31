@@ -3,9 +3,10 @@ import { Animated } from 'react-native';
 import PropTypes from 'prop-types'
 import { Button, ButtonContent, ButtonTextContainer, ButtonText, Icon } from './styles';
 
-export default function SocialLoginButton({ title, facebook, google }) {
+export default function SocialLoginButton({ title, facebook, google, callback }) {
   const [buttonAnimation] = useState(new Animated.Value(0)) 
   const [buttonActive, setButtonActive] = useState(false)
+  const [triggerCallback, setTrigger] = useState(false)
 
   function triggerSignInButton () {
     const toValue = buttonActive ? 0 : 1
@@ -18,6 +19,14 @@ export default function SocialLoginButton({ title, facebook, google }) {
         duration: 500,
       }
     ).start()
+    buttonAnimation.addListener(animationEnded)
+  }
+
+  function animationEnded(anim) {
+    if(anim.value === 1 && !triggerCallback) {
+      callback && callback()
+      setTrigger(true)
+    }
   }
 
   const animatedStyles = {
@@ -68,10 +77,12 @@ export default function SocialLoginButton({ title, facebook, google }) {
 SocialLoginButton.propTypes = {
   title: PropTypes.string.isRequired,
   facebook: PropTypes.bool,
-  google: PropTypes.bool
+  google: PropTypes.bool,
+  callback: PropTypes.func,
 }
 
 SocialLoginButton.PropTypes = {
   facebook: null,
   google: true,
+  callback: null,
 }
