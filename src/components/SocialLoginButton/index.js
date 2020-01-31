@@ -3,7 +3,7 @@ import { Animated } from 'react-native';
 import PropTypes from 'prop-types'
 import { Button, ButtonContent, ButtonTextContainer, ButtonText, Icon } from './styles';
 
-export default function SocialLoginButton({ title, facebook, google, callback }) {
+export default function SocialLoginButton({ title, facebook, google, onPress, callback, disabled }) {
   const [buttonAnimation] = useState(new Animated.Value(0)) 
   const [buttonActive, setButtonActive] = useState(false)
   const [triggerCallback, setTrigger] = useState(false)
@@ -11,15 +11,18 @@ export default function SocialLoginButton({ title, facebook, google, callback })
   function triggerSignInButton () {
     const toValue = buttonActive ? 0 : 1
 
-    setButtonActive(!buttonActive)
-    Animated.timing(
-      buttonAnimation,
-      {
-        toValue,
-        duration: 500,
-      }
-    ).start()
-    buttonAnimation.addListener(animationEnded)
+    if(!disabled) {
+      setButtonActive(!buttonActive)
+      Animated.timing(
+        buttonAnimation,
+        {
+          toValue,
+          duration: 500,
+        }
+      ).start()
+      buttonAnimation.addListener(animationEnded)
+      onPress()
+    }
   }
 
   function animationEnded(anim) {
@@ -63,7 +66,7 @@ export default function SocialLoginButton({ title, facebook, google, callback })
   }
 
   return (
-    <Button onPress={triggerSignInButton}>
+    <Button onPress={disabled ? null : triggerSignInButton}>
       <ButtonContent facebook={facebook} google={google} style={animatedStyles.smoothRadius}>
         <Icon facebook={facebook} google={google} style={animatedStyles.removeMargin} />
         <ButtonTextContainer style={animatedStyles.shrinkContainer}>
@@ -79,10 +82,14 @@ SocialLoginButton.propTypes = {
   facebook: PropTypes.bool,
   google: PropTypes.bool,
   callback: PropTypes.func,
+  onPress: PropTypes.func,
+  disabled: PropTypes.bool,
 }
 
 SocialLoginButton.PropTypes = {
   facebook: null,
   google: true,
   callback: null,
+  onPress: null,
+  disabled: false,
 }
